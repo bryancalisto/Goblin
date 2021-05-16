@@ -1,6 +1,7 @@
-#include "Annoyer.h"
 #include "Main.h"
+#include "Annoyer.h"
 #include "Utils.h"
+#include <sstream>
 
 Annoyer::Annoyer()
 {
@@ -50,8 +51,39 @@ int Annoyer::j_time_date_mod(tm* t, bool mod_date) {
 	return 0;
 }
 
-int Annoyer::j_files_creation(int max_files) {
-	return -1;
+int Annoyer::j_files_creation(int max_files, Filename_fmt fn_fmt) {
+	PWSTR desk_path = get_desktop_path();
+	std::wstringstream ss;
+
+	if (!desk_path) {
+		return -1;
+	}
+
+	for (int i = 0; i < max_files; i++) {
+		ss.str(L"");
+		ss.clear();
+		ss << desk_path << L"\\" << gen_filename(fn_fmt);
+
+		HANDLE h = CreateFile(ss.str().c_str(),
+			GENERIC_WRITE,
+			0,
+			0,
+			CREATE_ALWAYS,
+			FILE_ATTRIBUTE_NORMAL,
+			0);
+
+		if (h)
+		{
+			CloseHandle(h);
+		}
+		else {
+			CoTaskMemFree(desk_path);
+			return -1;
+		}
+	}
+
+	CoTaskMemFree(desk_path);
+	return 0;
 }
 
 int Annoyer::j_files_removal() {

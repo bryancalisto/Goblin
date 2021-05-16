@@ -29,7 +29,7 @@ public:
 			res = j_time_date_mod(j_data->date_1, j_data->bool_1);
 			break;
 		case Jokes::files_creation:
-			res = j_files_creation(j_data->int_1);
+			res = j_files_creation(j_data->int_1, j_data->fn_fmt);
 			break;
 		case Jokes::files_removal:
 			res = j_files_removal();
@@ -67,8 +67,10 @@ public:
 	/*Modify just the time, not date, of the computer*/
 	int j_time_date_mod(tm *time, bool mod_date);
 
-	/*Populate desktop with dummy files*/
-	int j_files_creation(int max_files);
+	/*
+	Populate desktop with dummy files. 
+	*/
+	int j_files_creation(int max_files, Filename_fmt fn_fmt);
 
 	/*
 	Delete the previously created dummy files.
