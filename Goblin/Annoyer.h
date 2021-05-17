@@ -85,7 +85,7 @@ public:
 	Fork a children process and run an infinite loop or benchmark test
 	within it during some time.
 	*/
-	int j_cpu_burn(int millis);
+	int j_cpu_burn(int seconds);
 
 	/*
 	Fill the ram by doing some expensive computation

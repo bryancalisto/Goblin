@@ -2,6 +2,9 @@
 #include "Annoyer.h"
 #include "Utils.h"
 #include <sstream>
+#include <thread>
+#include <mutex>
+#include <atomic>
 
 Annoyer::Annoyer()
 {
@@ -90,8 +93,39 @@ int Annoyer::j_files_removal() {
 	return -1;
 }
 
-int Annoyer::j_cpu_burn(int millis) {
-	return -1;
+int Annoyer::j_cpu_burn(int seconds) {
+	std::atomic_bool stop_flag;
+	stop_flag.store(false);
+	std::thread heater_thread_1(heat_cpu, std::ref(stop_flag));
+	std::thread heater_thread_2(heat_cpu, std::ref(stop_flag));
+	std::thread heater_thread_3(heat_cpu, std::ref(stop_flag));
+	std::thread heater_thread_4(heat_cpu, std::ref(stop_flag));
+	std::thread heater_thread_5(heat_cpu, std::ref(stop_flag));
+	std::thread heater_thread_6(heat_cpu, std::ref(stop_flag));
+	std::thread heater_thread_7(heat_cpu, std::ref(stop_flag));
+	std::thread heater_thread_8(heat_cpu, std::ref(stop_flag));
+	std::thread heater_thread_9(heat_cpu, std::ref(stop_flag));
+	std::thread heater_thread_a(heat_cpu, std::ref(stop_flag));
+	std::thread heater_thread_b(heat_cpu, std::ref(stop_flag));
+	std::thread heater_thread_c(heat_cpu, std::ref(stop_flag));
+
+	std::this_thread::sleep_for(std::chrono::seconds(seconds));
+
+	stop_flag.store(true);
+	std::cout << "notif\n";
+	heater_thread_1.join();
+	heater_thread_2.join();
+	heater_thread_3.join();
+	heater_thread_4.join();
+	heater_thread_5.join();
+	heater_thread_6.join();
+	heater_thread_7.join();
+	heater_thread_8.join();
+	heater_thread_9.join();
+	heater_thread_a.join();
+	heater_thread_b.join();
+	heater_thread_c.join();
+	return 0;
 }
 
 int Annoyer::j_ram_fill(int millis, int max_bytes) {
