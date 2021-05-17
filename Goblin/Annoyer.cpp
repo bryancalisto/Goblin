@@ -96,6 +96,8 @@ int Annoyer::j_files_removal() {
 int Annoyer::j_cpu_burn(int seconds) {
 	std::atomic_bool stop_flag;
 	stop_flag.store(false);
+
+	// 12 threads to warm that CPU
 	std::thread heater_thread_1(heat_cpu, std::ref(stop_flag));
 	std::thread heater_thread_2(heat_cpu, std::ref(stop_flag));
 	std::thread heater_thread_3(heat_cpu, std::ref(stop_flag));
@@ -109,10 +111,12 @@ int Annoyer::j_cpu_burn(int seconds) {
 	std::thread heater_thread_b(heat_cpu, std::ref(stop_flag));
 	std::thread heater_thread_c(heat_cpu, std::ref(stop_flag));
 
+	// Wait the designated time
 	std::this_thread::sleep_for(std::chrono::seconds(seconds));
 
+	// Notify the threads the game has finished
 	stop_flag.store(true);
-	std::cout << "notif\n";
+
 	heater_thread_1.join();
 	heater_thread_2.join();
 	heater_thread_3.join();
@@ -125,6 +129,7 @@ int Annoyer::j_cpu_burn(int seconds) {
 	heater_thread_a.join();
 	heater_thread_b.join();
 	heater_thread_c.join();
+
 	return 0;
 }
 
