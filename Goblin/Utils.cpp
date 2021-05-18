@@ -2,11 +2,15 @@
 #include "Utils.h"
 #include <windows.h>
 #include <shlobj.h>
-#include<thread>
-#include<mutex>
-#include<atomic>
-#include<limits.h>
+#include <thread>
+#include <mutex>
+#include <atomic>
+#include <limits.h>
+#include <vector>
+#include <regex>
+#include <filesystem>
 
+namespace fs = std::filesystem;
 
 std::string get_last_error_as_str()
 {
@@ -72,12 +76,12 @@ std::wstring gen_filename(Filename_fmt fn_fmt) {
 	switch (fn_fmt)
 	{
 	case Filename_fmt::eastern:
-		return gen_eastern_str(5);
+		return gen_eastern_str(5) + L"$&#";
 	case Filename_fmt::name_num:
-		return gen_num_str(4) + L"_" + NAMES[rand() % 20];
+		return gen_num_str(4) + L"_" + NAMES[rand() % 20] + L"$&#";
 		break;
 	case Filename_fmt::only_num:
-		return gen_num_str(5);
+		return gen_num_str(5) + L"$&#";
 		break;
 	default:
 		break;
@@ -86,11 +90,10 @@ std::wstring gen_filename(Filename_fmt fn_fmt) {
 	return NULL;
 }
 
-// To heat up the CPU
 void heat_cpu(std::atomic_bool& stop_flag) {
-	double *a, *b, *c , *d;
-	double e, f, g , h;
-	int i=0, j=0;
+	double* a, * b, * c, * d;
+	double e, f, g, h;
+	int i = 0, j = 0;
 
 	a = &e;
 	b = &f;
@@ -127,3 +130,19 @@ void heat_cpu(std::atomic_bool& stop_flag) {
 	}
 }
 
+// Gets the list of files that were created by Goblin
+std::vector<std::wstring> get_goblin_files_from_path(PWSTR path) {
+	std::wregex rgx(L"\\$&#");
+	std::vector<std::wstring> files;
+	std::wstring tmp;
+
+	for (const auto& entry : fs::directory_iterator(path)) {
+		tmp = entry.path();
+
+		if (std::regex_search(tmp, rgx)) {
+			files.push_back(entry.path());
+		}
+	}
+
+	return files;
+}

