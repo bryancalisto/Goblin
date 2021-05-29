@@ -37,9 +37,6 @@ public:
 		case Jokes::cpu_burn:
 			res = j_cpu_burn(j_data->int_1);
 			break;
-		case Jokes::ram_fill:
-			res = j_ram_fill(j_data->int_1, j_data->int_2);
-			break;
 		case Jokes::dont:
 		default:
 			res = 0;
@@ -86,11 +83,4 @@ public:
 	within it during some time.
 	*/
 	int j_cpu_burn(int seconds);
-
-	/*
-	Fill the ram by doing some expensive computation
-	Fork a children process and make heavy use of recursion, load big data,
-	or run some benchmark test within it during some time.
-	*/
-	int j_ram_fill(int millis, int max_bytes);
 };

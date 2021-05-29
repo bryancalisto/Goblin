@@ -21,7 +21,6 @@ enum class Jokes
 	files_creation,
 	files_removal,
 	cpu_burn,
-	ram_fill,
 	turn_on_off_fans
 };
 

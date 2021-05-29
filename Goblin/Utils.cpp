@@ -146,3 +146,4 @@ std::vector<std::wstring> get_goblin_files_from_path(PWSTR path) {
 
 	return files;
 }
+

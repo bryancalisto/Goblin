@@ -28,9 +28,9 @@ int main()
 	//annoyer->joke(Jokes::files_creation, &j_data);
 
 	// THIRD ... HEAT THE CPU
-	//j_data.int_1 = 60; // 60 seconds
-	//annoyer->joke(Jokes::cpu_burn, &j_data);
+	j_data.int_1 = 60; // 60 seconds
+	annoyer->joke(Jokes::cpu_burn, &j_data);
 
 	// FOURTH ... REMOVE CREATED FILES
-	annoyer->joke(Jokes::files_removal, &j_data);
+	//annoyer->joke(Jokes::files_removal, &j_data);
 }
