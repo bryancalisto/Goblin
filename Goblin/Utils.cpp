@@ -147,3 +147,26 @@ std::vector<std::wstring> get_goblin_files_from_path(PWSTR path) {
 	return files;
 }
 
+
+void startCMD() {
+	STARTUPINFOW si;
+	PROCESS_INFORMATION pi;
+	wchar_t cmd_exe[500];
+	wchar_t args[50] = L"/k echo hi && ping 127.0.0.1 -n 6 > nul && exit";
+
+	ZeroMemory(&si, sizeof(STARTUPINFOW));
+	ZeroMemory(&pi, sizeof(PROCESS_INFORMATION));
+
+	si.cb = sizeof(si);
+
+	GetEnvironmentVariable(L"COMSPEC", cmd_exe, 500);
+
+	if (CreateProcessW(cmd_exe, args, NULL, NULL, TRUE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi))
+	{
+		CloseHandle(pi.hThread);
+		WaitForSingleObject(pi.hProcess, INFINITE);
+		DWORD dwExitCode = 0;
+		GetExitCodeProcess(pi.hProcess, &dwExitCode);
+		CloseHandle(pi.hProcess);
+	}
+}

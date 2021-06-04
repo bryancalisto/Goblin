@@ -14,7 +14,8 @@ Annoyer::Annoyer()
 }
 
 int Annoyer::j_cli_with_msg(char* msg) {
-	return -1;
+	startCMD();
+	return 0;
 }
 
 int Annoyer::j_desktop_shuffle() {
