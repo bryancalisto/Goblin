@@ -6,6 +6,7 @@
 #include <mutex>
 #include <atomic>
 #include <windows.h>
+#include <commctrl.h>
 
 Annoyer::Annoyer()
 {
@@ -19,7 +20,32 @@ int Annoyer::j_cli_with_msg(char* msg) {
 }
 
 int Annoyer::j_desktop_shuffle() {
-	return -1;
+	// Must get the handle of desktop's listview and then you can reorder that listview
+	HWND progman = FindWindow(L"progman", NULL);
+	HWND shell = FindWindowEx(progman, NULL, L"shelldll_defview", NULL);
+	HWND hwndListView = FindWindowEx(shell, NULL, L"syslistview32", NULL);
+	int nIcons = ListView_GetItemCount(hwndListView);
+
+	int width;
+	int height;
+
+	// TODO : Save current state of desktop for later to allow a shuffle rollback  
+
+	RECT rect;
+	if (GetWindowRect(progman, &rect))
+	{
+		width = rect.right - rect.left;
+		height = rect.bottom - rect.top;
+		std::cout << width << std::endl;
+		std::cout << height << std::endl;
+	}
+
+	for (int i = 0; i < nIcons; i++) {
+		ListView_SetItemPosition(hwndListView, i, rand() % width, rand() % height);
+	}
+
+	std::cout << nIcons << std::endl;
+	return 0;
 }
 
 

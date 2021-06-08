@@ -35,5 +35,8 @@ int main()
 	//annoyer->joke(Jokes::files_removal, &j_data);
 
 	// FIFTH ... OPEN CMD
-	annoyer->joke(Jokes::cli_with_msg, &j_data);
+	//annoyer->joke(Jokes::cli_with_msg, &j_data);
+
+	// SIXTH ... SHUFFLE DESKTOP ICONS
+	annoyer->joke(Jokes::desktop_shuffle, &j_data);
 }
