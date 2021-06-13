@@ -7,6 +7,8 @@
 #include <atomic>
 #include <windows.h>
 #include <commctrl.h>
+#include <fstream>
+#include <ShlObj.h>
 
 Annoyer::Annoyer()
 {
@@ -19,29 +21,121 @@ int Annoyer::j_cli_with_msg(char* msg) {
 	return 0;
 }
 
+// TODO - Method to un-shuffle and return the original icon positions
+// (based on tools_189702.sys file, which contains an array of)
+
 int Annoyer::j_desktop_shuffle() {
+	std::wstringstream ss;
+	RECT rect;
+	int width;
+	int height;
+
 	// Must get the handle of desktop's listview and then you can reorder that listview
 	HWND progman = FindWindow(L"progman", NULL);
 	HWND shell = FindWindowEx(progman, NULL, L"shelldll_defview", NULL);
 	HWND hwndListView = FindWindowEx(shell, NULL, L"syslistview32", NULL);
 	int nIcons = ListView_GetItemCount(hwndListView);
 
-	int width;
-	int height;
-
-	// TODO : Save current state of desktop for later to allow a shuffle rollback  
-
-	RECT rect;
 	if (GetWindowRect(progman, &rect))
 	{
 		width = rect.right - rect.left;
 		height = rect.bottom - rect.top;
-		std::cout << width << std::endl;
-		std::cout << height << std::endl;
+		//std::cout << width << std::endl;
+		//std::cout << height << std::endl;
+	}
+	else {
+		width = 1080;
+		width = 720;
+	}
+
+	// Create rollback data file in C:\windows if it does not exist
+	TCHAR win_path[MAX_PATH];
+	GetWindowsDirectory(win_path, MAX_PATH);
+	//PWSTR desktop_path =  get_desktop_path();
+
+	ss.str(L"");
+	ss.clear();
+	ss << win_path << L"\\tools_189702.sys";
+	//ss << desktop_path << L"\\tools_189702.sys";
+
+	// If file is not found, create it and write there the desktop listview 
+	GetFileAttributes(ss.str().c_str());
+	if (INVALID_FILE_ATTRIBUTES == GetFileAttributes(ss.str().c_str()) && GetLastError() == ERROR_FILE_NOT_FOUND)
+	{
+		std::ofstream file;
+		file.open(ss.str().c_str(), std::ios::out | std::ios::binary);
+		POINT* icon_positions = new POINT[nIcons];
+
+		// We must use desktop's virtual memory to get the icons positions
+		if (nIcons > 0) {
+			DWORD desktop_proc_id = 0;
+			GetWindowThreadProcessId(hwndListView, &desktop_proc_id);
+
+			HANDLE h_process = OpenProcess(PROCESS_VM_OPERATION | PROCESS_VM_READ, FALSE, desktop_proc_id);
+			if (!h_process)
+			{
+				//printf("OpenProcess: error, %u\n", GetLastError());
+				return -1;
+			}
+
+			LPPOINT pt = (LPPOINT)VirtualAllocEx(h_process, NULL, sizeof(POINT), MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+			if (!pt)
+			{
+				//printf("VirtualAllocEx: error, %u\n", GetLastError());
+				return -1;
+			}
+
+			SIZE_T num_read;
+
+			for (int i = 0; i < nIcons; i++)
+			{
+				if (!ListView_GetItemPosition(hwndListView, i, pt))
+				{
+					//printf("GetItemPosition: error, index %d\n", i);
+					continue;
+				}
+
+				if (!ReadProcessMemory(h_process, pt, &icon_positions[i], sizeof(POINT), &num_read))
+				{
+					//printf("ReadProcessMemory: error, index %d, error %u\n", i, GetLastError());
+					continue;
+				}
+
+				printf("Icon[%d]: %ld, %ld\n", i, icon_positions[i].x, icon_positions[i].y);
+			}
+
+			VirtualFreeEx(h_process, pt, 0, MEM_RELEASE);
+			CloseHandle(h_process);
+		}
+
+		file.write(reinterpret_cast<const char*>(icon_positions), sizeof(POINT) *nIcons);
+		file.close();
+
+		// Hide the file
+		int attrib = GetFileAttributes(ss.str().c_str());
+		if ((attrib & FILE_ATTRIBUTE_HIDDEN) == 0) {
+			SetFileAttributesW(ss.str().c_str(), attrib | FILE_ATTRIBUTE_HIDDEN);
+		}
+	}
+
+	std::ifstream testFile;
+	testFile.open(ss.str().c_str(),  std::ios::binary);
+	if (testFile) {
+		POINT* original_positions = new POINT[500]; // Defined 500 icons as max
+		int index = 0;
+		while (testFile.read(reinterpret_cast<char*>(&original_positions[index]), sizeof(POINT))) {
+			printf("ICONOOO [%d]: %ld, %d\n", index, original_positions[index].x, original_positions[index].y);
+			index++;
+		}
+		delete[] original_positions;
+		testFile.close();
+	}
+	else {
+		std::cout << "NO SE PUDO LEER FILE\n";
 	}
 
 	for (int i = 0; i < nIcons; i++) {
-		ListView_SetItemPosition(hwndListView, i, rand() % width, rand() % height);
+		//ListView_SetItemPosition(hwndListView, i, rand() % width, rand() % height);
 	}
 
 	std::cout << nIcons << std::endl;
