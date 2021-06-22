@@ -9,6 +9,7 @@
 #include <vector>
 #include <regex>
 #include <filesystem>
+#include <fstream>
 
 namespace fs = std::filesystem;
 
@@ -169,4 +170,41 @@ void startCMD() {
 		GetExitCodeProcess(pi.hProcess, &dwExitCode);
 		CloseHandle(pi.hProcess);
 	}
+}
+
+int restoreShuffledDesktop() {
+	TCHAR win_path[MAX_PATH];
+	PWSTR desktop_path;
+	std::ifstream testFile;
+	std::wstringstream ss;
+	// Must get the handle of desktop's listview and then you can reorder that listview
+	HWND progman = FindWindow(L"progman", NULL);
+	HWND shell = FindWindowEx(progman, NULL, L"shelldll_defview", NULL);
+	HWND hwndListView = FindWindowEx(shell, NULL, L"syslistview32", NULL);
+	int nIcons = ListView_GetItemCount(hwndListView);
+
+	// Create rollback data file in C:\windows if it does not exist
+	//GetWindowsDirectory(win_path, MAX_PATH);
+	desktop_path =  get_desktop_path();
+
+	//ss << win_path << L"\\tools_189702.sys";
+	ss << desktop_path << L"\\tools_189702.sys";
+
+	testFile.open(ss.str().c_str(),  std::ios::binary);
+
+	if (testFile) {
+		POINT* original_positions = new POINT[500]; // Defined 500 icons as max
+		int index = 0;
+		while (testFile.read(reinterpret_cast<char*>(&original_positions[index]), sizeof(POINT))) {
+			ListView_SetItemPosition(hwndListView, index, original_positions[index].x, original_positions[index].y);
+			index++;
+		}
+		delete[] original_positions;
+		testFile.close();
+	}
+	else {
+		return -1;
+	}
+
+	return 0;
 }

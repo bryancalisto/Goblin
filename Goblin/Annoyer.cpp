@@ -25,11 +25,12 @@ int Annoyer::j_cli_with_msg(char* msg) {
 // (based on tools_189702.sys file, which contains an array of)
 
 int Annoyer::j_desktop_shuffle() {
+	TCHAR win_path[MAX_PATH];
+	PWSTR desktop_path;
 	std::wstringstream ss;
 	RECT rect;
 	int width;
 	int height;
-
 	// Must get the handle of desktop's listview and then you can reorder that listview
 	HWND progman = FindWindow(L"progman", NULL);
 	HWND shell = FindWindowEx(progman, NULL, L"shelldll_defview", NULL);
@@ -49,14 +50,13 @@ int Annoyer::j_desktop_shuffle() {
 	}
 
 	// Create rollback data file in C:\windows if it does not exist
-	TCHAR win_path[MAX_PATH];
-	GetWindowsDirectory(win_path, MAX_PATH);
-	//PWSTR desktop_path =  get_desktop_path();
+	//GetWindowsDirectory(win_path, MAX_PATH);
+	desktop_path =  get_desktop_path();
 
 	ss.str(L"");
 	ss.clear();
-	ss << win_path << L"\\tools_189702.sys";
-	//ss << desktop_path << L"\\tools_189702.sys";
+	//ss << win_path << L"\\tools_189702.sys";
+	ss << desktop_path << L"\\tools_189702.sys";
 
 	// If file is not found, create it and write there the desktop listview 
 	GetFileAttributes(ss.str().c_str());
@@ -101,7 +101,7 @@ int Annoyer::j_desktop_shuffle() {
 					continue;
 				}
 
-				printf("Icon[%d]: %ld, %ld\n", i, icon_positions[i].x, icon_positions[i].y);
+				//printf("Icon[%d]: %ld, %ld\n", i, icon_positions[i].x, icon_positions[i].y);
 			}
 
 			VirtualFreeEx(h_process, pt, 0, MEM_RELEASE);
@@ -118,27 +118,11 @@ int Annoyer::j_desktop_shuffle() {
 		}
 	}
 
-	std::ifstream testFile;
-	testFile.open(ss.str().c_str(),  std::ios::binary);
-	if (testFile) {
-		POINT* original_positions = new POINT[500]; // Defined 500 icons as max
-		int index = 0;
-		while (testFile.read(reinterpret_cast<char*>(&original_positions[index]), sizeof(POINT))) {
-			printf("ICONOOO [%d]: %ld, %d\n", index, original_positions[index].x, original_positions[index].y);
-			index++;
-		}
-		delete[] original_positions;
-		testFile.close();
-	}
-	else {
-		std::cout << "NO SE PUDO LEER FILE\n";
-	}
-
 	for (int i = 0; i < nIcons; i++) {
-		//ListView_SetItemPosition(hwndListView, i, rand() % width, rand() % height);
+		ListView_SetItemPosition(hwndListView, i, rand() % width, rand() % height);
 	}
 
-	std::cout << nIcons << std::endl;
+	//std::cout << nIcons << std::endl;
 	return 0;
 }
 
