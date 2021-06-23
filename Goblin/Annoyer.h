@@ -14,7 +14,7 @@ public:
 
 	Annoyer();
 
-	int joke(Jokes j, joke_data *j_data) {
+	int joke(Jokes j, joke_data* j_data) {
 		int res;
 
 		switch (j)
@@ -56,16 +56,19 @@ public:
 	/*Note: The 'j' prefix stands for 'joke'*/
 
 	/*Show a cli with some funny message*/
-	int j_cli_with_msg(char *msg);
+	int j_cli_with_msg(char* msg);
 
 	/*Reposition the desktop icons*/
 	int j_desktop_shuffle();
 
+	/*Restores the original position of the desktop icons*/
+	int j_desktop_unshuffle();
+
 	/*Modify just the time, not date, of the computer*/
-	int j_time_date_mod(tm *time, bool mod_date);
+	int j_time_date_mod(tm* time, bool mod_date);
 
 	/*
-	Populate desktop with dummy files. 
+	Populate desktop with dummy files.
 	*/
 	int j_files_creation(int max_files, Filename_fmt fn_fmt);
 
@@ -83,4 +86,10 @@ public:
 	within it during some time.
 	*/
 	int j_cpu_burn(int seconds);
+
+	// Entry point of the annoyer
+	void start_annoying();
+
+	// Choose random joke
+	Jokes choose_random_joke();
 };

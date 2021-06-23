@@ -12,16 +12,16 @@ enum class Filename_fmt
 };
 
 // The list of jokes that the Goblin can make to users
-enum class Jokes
+enum class Jokes:int 
 {
 	dont,
 	cli_with_msg,
 	desktop_shuffle,
+	desktop_unshuffle,
 	time_date_mod,
 	files_creation,
 	files_removal,
 	cpu_burn,
-	turn_on_off_fans
 };
 
 // Data structure to pass data to jokes functions
