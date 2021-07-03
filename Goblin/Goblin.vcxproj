@@ -151,11 +151,13 @@
   <ItemGroup>
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Annoyer.cpp" />
+    <ClCompile Include="Malware_behav.cpp" />
     <ClCompile Include="Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Annoyer.h" />
     <ClInclude Include="Main.h" />
+    <ClInclude Include="Malware_behav.h" />
     <ClInclude Include="Utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
