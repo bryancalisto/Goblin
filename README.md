@@ -1,5 +1,5 @@
 # Goblin (El Duende)
-Simple Windows "malware" that I made for learning purposes. It does not do "bad" stuff apart from the specified.
+Simple Windows malware that I made for learning purposes. It does not do bad stuff apart from the specified.
 <br/>
 <br/>
 <p>The program jokes with the next actions, frequently and randomly:</p>
