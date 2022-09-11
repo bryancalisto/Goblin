@@ -1,6 +1,7 @@
 #pragma once
 
 #define WIN32_LEAN_AND_MEAN
+#define DEBUG_MODE
 
 #include <ctime>
 #include <iostream>
