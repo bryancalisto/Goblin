@@ -29,7 +29,7 @@ int Annoyer::j_desktop_shuffle() {
 	RECT rect;
 	int width;
 	int height;
-	// Must get the handle of desktop's listview and then you can reorder that listview
+	// You must get the handle of desktop's listview and then you can reorder that listview
 	HWND progman = FindWindow(L"progman", NULL);
 	HWND shell = FindWindowEx(progman, NULL, L"shelldll_defview", NULL);
 	HWND hwndListView = FindWindowEx(shell, NULL, L"syslistview32", NULL);
@@ -44,7 +44,7 @@ int Annoyer::j_desktop_shuffle() {
 	}
 	else {
 		width = 1080;
-		width = 720;
+		height = 720;
 	}
 
 	// Create rollback data file in C:\windows if it does not exist
@@ -60,8 +60,6 @@ int Annoyer::j_desktop_shuffle() {
 	GetFileAttributes(ss.str().c_str());
 	if (INVALID_FILE_ATTRIBUTES == GetFileAttributes(ss.str().c_str()) && GetLastError() == ERROR_FILE_NOT_FOUND)
 	{
-		std::ofstream file;
-		file.open(ss.str().c_str(), std::ios::out | std::ios::binary);
 		POINT* icon_positions = new POINT[nIcons];
 
 		// We must use desktop's virtual memory to get the icons positions
@@ -72,30 +70,28 @@ int Annoyer::j_desktop_shuffle() {
 			HANDLE h_process = OpenProcess(PROCESS_VM_OPERATION | PROCESS_VM_READ, FALSE, desktop_proc_id);
 			if (!h_process)
 			{
-				//printf("OpenProcess: error, %u\n", GetLastError());
+				printf("VirtualAllocEx: Error while opening desktop UI process\n");
 				return -1;
 			}
 
 			LPPOINT pt = (LPPOINT)VirtualAllocEx(h_process, NULL, sizeof(POINT), MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
 			if (!pt)
 			{
-				//printf("VirtualAllocEx: error, %u\n", GetLastError());
+				printf("VirtualAllocEx: Error while allocating memory in desktop UI process\n");
 				return -1;
 			}
-
-			SIZE_T num_read;
 
 			for (int i = 0; i < nIcons; i++)
 			{
 				if (!ListView_GetItemPosition(hwndListView, i, pt))
 				{
-					//printf("GetItemPosition: error, index %d\n", i);
+					printf("GetItemPosition: Error while retrieving desktop icon (%d) position\n", i);
 					continue;
 				}
 
-				if (!ReadProcessMemory(h_process, pt, &icon_positions[i], sizeof(POINT), &num_read))
+				if (!ReadProcessMemory(h_process, pt, &icon_positions[i], sizeof(POINT), nullptr))
 				{
-					//printf("ReadProcessMemory: error, index %d, error %u\n", i, GetLastError());
+					printf("ReadProcessMemory: Error while reading desktop icon (%d) positions\n", i);
 					continue;
 				}
 
@@ -106,6 +102,8 @@ int Annoyer::j_desktop_shuffle() {
 			CloseHandle(h_process);
 		}
 
+		std::ofstream file;
+		file.open(ss.str().c_str(), std::ios::out | std::ios::binary);
 		file.write(reinterpret_cast<const char*>(icon_positions), sizeof(POINT) * nIcons);
 		file.close();
 
@@ -139,7 +137,7 @@ int Annoyer::j_time_date_mod(tm* t, bool mod_date) {
 	st.wHour = t->tm_hour;
 	st.wMinute = t->tm_min;
 	st.wSecond = t->tm_sec;
-	st.wMilliseconds = 000;
+	st.wMilliseconds = 0;
 
 	if (mod_date) {
 		st.wYear = t->tm_year;
@@ -158,8 +156,6 @@ int Annoyer::j_time_date_mod(tm* t, bool mod_date) {
 	else {
 		return -1;
 	}
-
-	return 0;
 }
 
 int Annoyer::j_files_creation(int max_files, Filename_fmt fn_fmt) {
@@ -305,3 +301,4 @@ void Annoyer::start_annoying() {
 Jokes Annoyer::choose_random_joke() {
 	return static_cast<Jokes>(rand() % 8);
 }
+
